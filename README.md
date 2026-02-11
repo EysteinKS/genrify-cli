@@ -1,5 +1,10 @@
 # genrify
 
+[![CI](https://github.com/EysteinKS/genrify-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/EysteinKS/genrify-cli/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/EysteinKS/genrify-cli/branch/main/graph/badge.svg)](https://codecov.io/gh/EysteinKS/genrify-cli)
+
+The CI workflow always generates a `coverage.out` artifact; the Codecov upload/badge is optional.
+
 CLI for interacting with Spotify (login + playlists).
 
 ## Prereqs
@@ -73,4 +78,8 @@ go run ./cmd/genrify playlists add <playlist-id> spotify:track:<id> https://open
 
 ```sh
 go test ./...
+
+# Race + coverage (writes ./coverage.out)
+go test ./... -race -coverprofile=coverage.out -covermode=atomic
+go tool cover -func=coverage.out
 ```
