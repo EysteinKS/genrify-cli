@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	openTrackURLRe = regexp.MustCompile(`(?i)^https?://open\.spotify\.com/track/([A-Za-z0-9]+)(?:\?.*)?$`)
-	openPlaylistURLRe = regexp.MustCompile(`(?i)^https?://open\.spotify\.com/playlist/([A-Za-z0-9]+)(?:\?.*)?$`)
+	openTrackURLRe       = regexp.MustCompile(`(?i)^https?://open\.spotify\.com/track/([A-Za-z0-9]+)(?:\?.*)?$`)
+	openPlaylistURLRe    = regexp.MustCompile(`(?i)^https?://open\.spotify\.com/playlist/([A-Za-z0-9]+)(?:\?.*)?$`)
 	spotifyPlaylistURIRe = regexp.MustCompile(`(?i)^spotify:playlist:([A-Za-z0-9]+)$`)
 )
 

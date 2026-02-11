@@ -98,7 +98,7 @@ func LoginPKCE(ctx context.Context, cfg OAuthConfig) (LoginResult, error) {
 			return
 		}
 
-		io.WriteString(w, "Login complete. You can close this window.")
+		_, _ = io.WriteString(w, "Login complete. You can close this window.")
 		select {
 		case codeCh <- code:
 		default:

@@ -127,7 +127,7 @@ func TestToken_Expired(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.token.Expired(tt.leeway); got != tt.want {
-				t.Errorf("Expired(%v) = %v, want %v (expiresAt=%v, now=%v)", 
+				t.Errorf("Expired(%v) = %v, want %v (expiresAt=%v, now=%v)",
 					tt.leeway, got, tt.want, tt.token.ExpiresAt, now)
 			}
 		})

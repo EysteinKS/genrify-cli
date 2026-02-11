@@ -41,7 +41,7 @@ func (m *MockSpotifyServer) AddHandler(path string, handler http.HandlerFunc) {
 func RespondJSON(w http.ResponseWriter, status int, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(v)
+	_ = json.NewEncoder(w).Encode(v)
 }
 
 // RespondError writes a Spotify API error response.

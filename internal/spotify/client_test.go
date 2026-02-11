@@ -91,7 +91,7 @@ func TestClient_RetriesOn401_AfterRefresh(t *testing.T) {
 			return
 		case "Bearer good":
 			w.Header().Set("Content-Type", "application/json")
-			io.WriteString(w, `{"id":"me","display_name":"Me"}`)
+			_, _ = io.WriteString(w, `{"id":"me","display_name":"Me"}`)
 			return
 		default:
 			w.WriteHeader(http.StatusUnauthorized)
@@ -136,7 +136,7 @@ func TestClient_RetriesOn429_ThenSucceeds(t *testing.T) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		io.WriteString(w, `{"id":"me","display_name":"Me"}`)
+		_, _ = io.WriteString(w, `{"id":"me","display_name":"Me"}`)
 	})
 
 	srv := httptest.NewServer(mux)
@@ -187,7 +187,7 @@ func TestClient_AddTracks_BatchesBy100(t *testing.T) {
 		seenCounts = append(seenCounts, len(req.URIs))
 		w.Header().Set("Content-Type", "application/json")
 		snap := "s" + strconv.Itoa(calls)
-		io.WriteString(w, `{"snapshot_id":"`+snap+`"}`)
+		_, _ = io.WriteString(w, `{"snapshot_id":"`+snap+`"}`)
 	})
 
 	srv := httptest.NewServer(mux)
@@ -242,7 +242,7 @@ func TestClient_CreatePlaylist(t *testing.T) {
 			"owner":       map[string]any{"id": "me"},
 			"tracks":      map[string]any{"total": 0},
 		}
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 
 	srv := httptest.NewServer(mux)
@@ -284,7 +284,7 @@ func TestClient_GetPlaylist(t *testing.T) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]any{
+		_ = json.NewEncoder(w).Encode(map[string]any{
 			"id":   "pl123",
 			"name": "Test",
 			"owner": map[string]any{
@@ -389,7 +389,7 @@ func TestClient_ListPlaylistTracks(t *testing.T) {
 				},
 				"next": "",
 			}
-			json.NewEncoder(w).Encode(resp)
+			_ = json.NewEncoder(w).Encode(resp)
 		}
 	})
 
@@ -466,7 +466,7 @@ func TestClient_ListPlaylistTracks_FiltersNullTracks(t *testing.T) {
 			},
 			"next": "",
 		}
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 
 	srv := httptest.NewServer(mux)
@@ -492,7 +492,7 @@ func TestClient_ErrorHandling_404(t *testing.T) {
 	mux.HandleFunc("/playlists/notfound/tracks", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
-		io.WriteString(w, `{"error": {"status": 404, "message": "Not found"}}`)
+		_, _ = io.WriteString(w, `{"error": {"status": 404, "message": "Not found"}}`)
 	})
 
 	srv := httptest.NewServer(mux)
@@ -525,7 +525,7 @@ func TestClient_ErrorHandling_500(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/me", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(w, `{"error": {"status": 500, "message": "Internal server error"}}`)
+		_, _ = io.WriteString(w, `{"error": {"status": 500, "message": "Internal server error"}}`)
 	})
 
 	srv := httptest.NewServer(mux)
@@ -555,7 +555,7 @@ func TestClient_ErrorHandling_RateLimiting(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/me", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusTooManyRequests)
-		io.WriteString(w, `{"error": {"status": 429, "message": "Rate limit exceeded"}}`)
+		_, _ = io.WriteString(w, `{"error": {"status": 429, "message": "Rate limit exceeded"}}`)
 	})
 
 	srv := httptest.NewServer(mux)

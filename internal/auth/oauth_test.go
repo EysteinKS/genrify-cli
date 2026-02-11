@@ -186,7 +186,7 @@ func TestStartCallbackServer(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		io.WriteString(w, "OK")
+		_, _ = io.WriteString(w, "OK")
 	})
 
 	// Start server with port 0 to get a random available port
@@ -197,8 +197,8 @@ func TestStartCallbackServer(t *testing.T) {
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
-		server.Shutdown(ctx)
-		listener.Close()
+		_ = server.Shutdown(ctx)
+		_ = listener.Close()
 	}()
 
 	// Make a request to the server
