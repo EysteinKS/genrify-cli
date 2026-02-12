@@ -64,6 +64,25 @@ The GUI version provides a graphical interface for all features.
    ./genrify-gui-linux-*
    ```
 
+#### Windows
+
+1. Install GTK3 Runtime:
+   - **Option A (MSYS2 - Recommended):**
+     1. Download and install [MSYS2](https://www.msys2.org/)
+     2. Open MSYS2 MINGW64 terminal
+     3. Run: `pacman -S mingw-w64-x86_64-gtk3`
+     4. Add `C:\msys64\mingw64\bin` to your PATH
+
+   - **Option B (GTK Runtime):**
+     Download and install the GTK3 Runtime from [gtk.org](https://www.gtk.org/docs/installations/windows)
+
+2. Download the GUI build for Windows from the [GUI Releases](https://github.com/EysteinKS/genrify-cli/releases) (look for `genrify-gui_*_windows_*.zip`)
+
+3. Extract and run:
+   ```cmd
+   genrify.exe
+   ```
+
 ### CLI-Only Version (no GTK3 required)
 
 Download the latest release asset for your OS from GitHub Releases (not the "Source code" zip), unzip it, and run `genrify`.

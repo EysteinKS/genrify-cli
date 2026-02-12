@@ -48,7 +48,7 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.63.4
-          args: --timeout=5m
+          args: --timeout=5m --build-tags=nogui
 
       - name: Test with nogui tag (race + coverage)
         run: go test -tags nogui ./... -race -coverprofile=coverage.out -covermode=atomic

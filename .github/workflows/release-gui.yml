@@ -60,6 +60,73 @@ jobs:
           name: gui-linux
           path: genrify-gui_*.tar.gz
 
+  build-gui-windows:
+    name: Build GUI for Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Install MSYS2 and GTK3
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gtk3
+            mingw-w64-x86_64-pkg-config
+            mingw-w64-x86_64-gcc
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ inputs.tag }}" != "" ]; then
+            echo "VERSION=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build GUI for Windows amd64
+        shell: msys2 {0}
+        run: |
+          export PATH="/mingw64/bin:$PATH"
+          export PKG_CONFIG_PATH="/mingw64/lib/pkgconfig"
+          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build \
+            -ldflags="-s -w -X genrify/internal/buildinfo.Version=${{ steps.version.outputs.VERSION }} -H windowsgui" \
+            -o genrify-gui-windows-amd64.exe ./cmd/genrify
+
+      - name: Package Windows GUI
+        shell: bash
+        run: |
+          mkdir -p genrify-gui-windows
+          cp genrify-gui-windows-amd64.exe genrify-gui-windows/genrify.exe
+
+          # Copy required GTK DLLs
+          cp /mingw64/bin/*.dll genrify-gui-windows/ 2>/dev/null || true
+
+          # Create a minimal package with just the essential DLLs
+          # Users will need to install GTK3 runtime separately for full functionality
+
+          cd genrify-gui-windows
+          7z a ../genrify-gui_${{ steps.version.outputs.VERSION }}_windows_amd64.zip *
+
+      - name: Upload GUI artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gui-windows
+          path: genrify-gui_*.zip
+
   build-gui-macos:
     name: Build GUI for macOS
     runs-on: macos-latest
@@ -115,7 +182,7 @@ jobs:
   release:
     name: Create GUI Release
     runs-on: ubuntu-latest
-    needs: [build-gui-linux, build-gui-macos]
+    needs: [build-gui-linux, build-gui-windows, build-gui-macos]
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
 
     steps:
@@ -138,7 +205,7 @@ jobs:
           name: GUI Build ${{ steps.version.outputs.VERSION }}
           draft: true
           files: |
-            gui-*/genrify-gui_*.tar.gz
+            gui-*/*
           body: |
             # GUI Build for Genrify ${{ steps.version.outputs.VERSION }}
 
@@ -158,10 +225,27 @@ jobs:
             brew install gtk+3
             ```
 
+            ### Windows
+            Install GTK3 Runtime:
+            1. Download and install [MSYS2](https://www.msys2.org/)
+            2. Open MSYS2 MINGW64 terminal
+            3. Run: `pacman -S mingw-w64-x86_64-gtk3`
+            4. Add `C:\msys64\mingw64\bin` to your PATH
+
+            Or download the GTK3 Runtime from the [GTK website](https://www.gtk.org/docs/installations/windows).
+
             ## Usage
+
+            ### Linux / macOS
             ```bash
             ./genrify-gui-*  # Launches GUI
             ./genrify-gui-* start  # Launches TUI
+            ```
+
+            ### Windows
+            ```cmd
+            genrify.exe  # Launches GUI
+            genrify.exe start  # Launches TUI
             ```
 
             **Note:** For CLI-only builds (no GTK3 required), use the main release.

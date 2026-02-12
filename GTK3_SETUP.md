@@ -31,6 +31,12 @@ Creates separate GUI releases with GTK3 support:
 - Builds for Linux amd64
 - Creates tarball with version in filename
 
+#### Windows GUI Build
+- Runs on `windows-latest`
+- Installs GTK3 via MSYS2
+- Builds for Windows amd64
+- Packages with essential DLLs as ZIP archive
+
 #### macOS GUI Build
 - Runs on `macos-latest`
 - Installs GTK3 via Homebrew
@@ -94,7 +100,7 @@ Both workflows run:
 | Linux (arm64) | ✅ | ⚠️ | Possible but not in CI |
 | macOS (Intel) | ✅ | ✅ | GUI requires `brew install gtk+3` |
 | macOS (Apple Silicon) | ✅ | ✅ | GUI requires `brew install gtk+3` |
-| Windows | ✅ | ❌ | GTK3 on Windows not configured |
+| Windows (amd64) | ✅ | ✅ | GUI requires MSYS2/GTK3 Runtime |
 
 ## GTK3 Dependencies by Platform
 
@@ -107,6 +113,14 @@ sudo apt-get install libgtk-3-0                # Runtime
 ### macOS
 ```bash
 brew install gtk+3 pkg-config  # Build and runtime
+```
+
+### Windows
+```bash
+# Using MSYS2 MINGW64 terminal
+pacman -S mingw-w64-x86_64-gtk3 mingw-w64-x86_64-pkg-config mingw-w64-x86_64-gcc
+
+# Add to PATH: C:\msys64\mingw64\bin
 ```
 
 ### Fedora/RHEL

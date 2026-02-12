@@ -33,3 +33,6 @@ tmp/
 *.swp
 *.swo
 *~
+
+genrify
+genrify-gui
