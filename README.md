@@ -3,18 +3,35 @@
 [![CI](https://github.com/EysteinKS/genrify-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/EysteinKS/genrify-cli/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/EysteinKS/genrify-cli/branch/main/graph/badge.svg)](https://codecov.io/gh/EysteinKS/genrify-cli)
 
-The CI workflow always generates a `coverage.out` artifact; the Codecov upload/badge is optional.
-
 CLI for interacting with Spotify (login + playlists).
 
 ## Prereqs
 
-- Go 1.22+
 - A Spotify app (Client ID)
+
+Optional (only if you run from source):
+
+- Go 1.22+
+
+## Install
+
+### Prebuilt executable (recommended)
+
+Download the latest release for your OS from GitHub Releases, unzip it, and run `genrify`.
+
+On first run, `genrify` will ask for the required Spotify settings and save them to a config file in your user config directory.
+
+### Run from source
+
+```sh
+go run ./cmd/genrify version
+```
 
 ## Config
 
-Environment variables:
+On first run, the CLI will prompt you for config and save it.
+
+Advanced: you can still configure via environment variables (they override the saved config):
 
 - `SPOTIFY_CLIENT_ID` (required)
 - `SPOTIFY_REDIRECT_URI` (optional, default: `http://localhost:8888/callback`)
@@ -45,10 +62,22 @@ export SPOTIFY_TLS_KEY_FILE="$PWD/.certs/localhost-key.pem"
 go run ./cmd/genrify login
 ```
 
+If you installed the prebuilt executable, run:
+
+```sh
+genrify login
+```
+
 ### Interactive mode
 
 ```sh
 go run ./cmd/genrify start
+```
+
+With the prebuilt executable:
+
+```sh
+genrify start
 ```
 
 The `start` command launches an interactive menu where you can:

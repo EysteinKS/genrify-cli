@@ -1,12 +1,24 @@
 package config
 
 import (
+	"path/filepath"
 	"os"
 	"reflect"
 	"testing"
 )
 
+func withTempConfigDir(t *testing.T) string {
+	t.Helper()
+	dir := t.TempDir()
+	os.Setenv("XDG_CONFIG_HOME", dir)
+	t.Cleanup(func() {
+		os.Unsetenv("XDG_CONFIG_HOME")
+	})
+	return dir
+}
+
 func TestLoad_Success(t *testing.T) {
+	withTempConfigDir(t)
 	// Set required env var
 	os.Setenv("SPOTIFY_CLIENT_ID", "test-client-id")
 	defer os.Unsetenv("SPOTIFY_CLIENT_ID")
@@ -45,14 +57,20 @@ func TestLoad_Success(t *testing.T) {
 }
 
 func TestLoad_MissingClientID(t *testing.T) {
+	withTempConfigDir(t)
 	os.Unsetenv("SPOTIFY_CLIENT_ID")
-	_, err := Load()
-	if err == nil || err.Error() != "SPOTIFY_CLIENT_ID is required" {
-		t.Errorf("expected 'SPOTIFY_CLIENT_ID is required' error, got: %v", err)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() failed: %v", err)
+	}
+	if cfg.SpotifyClientID != "" {
+		t.Fatalf("expected empty client id when not configured, got %q", cfg.SpotifyClientID)
 	}
 }
 
 func TestLoad_CustomRedirectURI(t *testing.T) {
+	withTempConfigDir(t)
 	os.Setenv("SPOTIFY_CLIENT_ID", "test-client-id")
 	os.Setenv("SPOTIFY_REDIRECT_URI", "http://localhost:9999/auth")
 	defer func() {
@@ -71,6 +89,7 @@ func TestLoad_CustomRedirectURI(t *testing.T) {
 }
 
 func TestLoad_CustomScopes(t *testing.T) {
+	withTempConfigDir(t)
 	os.Setenv("SPOTIFY_CLIENT_ID", "test-client-id")
 	os.Setenv("SPOTIFY_SCOPES", "user-read-private playlist-modify-public")
 	defer func() {
@@ -90,6 +109,7 @@ func TestLoad_CustomScopes(t *testing.T) {
 }
 
 func TestLoad_TLSFiles(t *testing.T) {
+	withTempConfigDir(t)
 	os.Setenv("SPOTIFY_CLIENT_ID", "test-client-id")
 	os.Setenv("SPOTIFY_TLS_CERT_FILE", "/path/to/cert.pem")
 	os.Setenv("SPOTIFY_TLS_KEY_FILE", "/path/to/key.pem")
@@ -113,6 +133,7 @@ func TestLoad_TLSFiles(t *testing.T) {
 }
 
 func TestLoad_TrimsWhitespace(t *testing.T) {
+	withTempConfigDir(t)
 	os.Setenv("SPOTIFY_CLIENT_ID", "  test-client-id  ")
 	os.Setenv("SPOTIFY_REDIRECT_URI", "  http://localhost:8888  ")
 	defer func() {
@@ -130,6 +151,53 @@ func TestLoad_TrimsWhitespace(t *testing.T) {
 	}
 	if cfg.SpotifyRedirect != "http://localhost:8888" {
 		t.Errorf("expected trimmed redirect URI, got %q", cfg.SpotifyRedirect)
+	}
+}
+
+func TestLoad_UsesConfigFileWhenEnvMissing(t *testing.T) {
+	base := withTempConfigDir(t)
+
+	os.Unsetenv("SPOTIFY_CLIENT_ID")
+
+	path, err := Path()
+	if err != nil {
+		t.Fatalf("Path() failed: %v", err)
+	}
+	if filepath.Dir(path) != filepath.Join(base, "genrify") {
+		t.Fatalf("expected config dir under temp, got %s", path)
+	}
+
+	_, err = Save(Config{SpotifyClientID: "from-file"})
+	if err != nil {
+		t.Fatalf("Save() failed: %v", err)
+	}
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() failed: %v", err)
+	}
+	if cfg.SpotifyClientID != "from-file" {
+		t.Fatalf("expected client id from file, got %q", cfg.SpotifyClientID)
+	}
+}
+
+func TestLoad_EnvOverridesConfigFile(t *testing.T) {
+	withTempConfigDir(t)
+
+	_, err := Save(Config{SpotifyClientID: "from-file"})
+	if err != nil {
+		t.Fatalf("Save() failed: %v", err)
+	}
+
+	os.Setenv("SPOTIFY_CLIENT_ID", "from-env")
+	defer os.Unsetenv("SPOTIFY_CLIENT_ID")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() failed: %v", err)
+	}
+	if cfg.SpotifyClientID != "from-env" {
+		t.Fatalf("expected env override, got %q", cfg.SpotifyClientID)
 	}
 }
 

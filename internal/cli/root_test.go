@@ -1,7 +1,12 @@
 package cli
 
 import (
+	"errors"
+	"strings"
 	"testing"
+
+	"genrify/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func TestNewRoot(t *testing.T) {
@@ -43,10 +48,59 @@ func TestNewRoot(t *testing.T) {
 }
 
 func TestRootPersistentPreRunE(t *testing.T) {
-	// This test requires SPOTIFY_CLIENT_ID env var
-	// We'll skip if not set to avoid breaking CI
-	t.Skip("Skipping test that requires environment configuration")
+	cmd, root := NewRoot()
+	root.Prompter = &fakePrompter{values: map[string]string{
+		"Spotify Client ID":                       "client-id",
+		"Spotify Redirect URI":                    "http://localhost:8888/callback",
+		"Spotify scopes (space/comma separated)":   "playlist-read-private",
+		"TLS cert file (for https redirect)":       "",
+		"TLS key file (for https redirect)":        "",
+	}}
+	root.loadConfig = func() (config.Config, error) { return config.Default(), nil }
+	var saved config.Config
+	root.saveConfig = func(c config.Config) (string, error) { saved = c; return "/tmp/config.json", nil }
 
-	// Alternative: test with mocked config
-	// This would require refactoring to inject config loader
+	buf := &strings.Builder{}
+	cmd.SetOut(buf)
+
+	if err := cmd.PersistentPreRunE(cmd, nil); err != nil {
+		t.Fatalf("PersistentPreRunE failed: %v", err)
+	}
+	if root.Cfg.SpotifyClientID != "client-id" {
+		t.Fatalf("expected config to be set on root")
+	}
+	if saved.SpotifyClientID != "client-id" {
+		t.Fatalf("expected config to be saved")
+	}
+}
+
+func TestRootPersistentPreRunE_SkipsVersion(t *testing.T) {
+	cmd, root := NewRoot()
+	root.loadConfig = func() (config.Config, error) { return config.Config{}, errors.New("should not load") }
+
+	version := &cobra.Command{Use: "version", Run: func(cmd *cobra.Command, args []string) {}}
+	version.SetOut(&strings.Builder{})
+
+	if err := cmd.PersistentPreRunE(version, nil); err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+}
+
+type fakePrompter struct {
+	values map[string]string
+}
+
+func (p *fakePrompter) PromptString(label, defaultValue string) (string, error) {
+	if v, ok := p.values[label]; ok {
+		return v, nil
+	}
+	return defaultValue, nil
+}
+
+func (p *fakePrompter) PromptInt(label string, defaultValue int) (int, error) { return defaultValue, nil }
+func (p *fakePrompter) PromptSelect(label string, items []string) (int, string, error) {
+	if len(items) == 0 {
+		return 0, "", nil
+	}
+	return 0, items[0], nil
 }
