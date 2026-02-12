@@ -17,7 +17,7 @@ Optional (only if you run from source):
 
 ### Prebuilt executable (recommended)
 
-Download the latest release for your OS from GitHub Releases, unzip it, and run `genrify`.
+Download the latest release asset for your OS from GitHub Releases (not the "Source code" zip), unzip it, and run `genrify`.
 
 On first run, `genrify` will ask for the required Spotify settings and save them to a config file in your user config directory.
 

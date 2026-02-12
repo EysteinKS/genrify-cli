@@ -2,10 +2,6 @@ version: 2
 
 project_name: genrify
 
-before:
-  hooks:
-    - go mod tidy
-
 builds:
   - id: genrify
     main: ./cmd/genrify
@@ -25,12 +21,13 @@ builds:
 
 archives:
   - id: default
-    builds:
+    ids:
       - genrify
-    format_overrides:
-      - goos: windows
-        format: zip
+    formats:
+      - zip
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - none*
 
 checksum:
   name_template: checksums.txt
