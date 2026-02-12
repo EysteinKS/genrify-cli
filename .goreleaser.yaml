@@ -8,6 +8,8 @@ builds:
     binary: genrify
     env:
       - CGO_ENABLED=0
+    tags:
+      - nogui
     goos:
       - darwin
       - linux

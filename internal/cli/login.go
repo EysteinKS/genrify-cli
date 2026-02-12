@@ -3,14 +3,28 @@ package cli
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
 	"genrify/internal/auth"
+	"genrify/internal/certs"
 	"genrify/internal/config"
 )
 
 func doLogin(ctx context.Context, cfg config.Config) (string, error) {
+	// Auto-generate certificates if HTTPS redirect is configured but cert files are missing.
+	if strings.HasPrefix(strings.ToLower(cfg.SpotifyRedirect), "https://") {
+		if cfg.SpotifyTLSCert == "" || cfg.SpotifyTLSKey == "" {
+			certPath, keyPath, err := certs.EnsureCerts("", "")
+			if err != nil {
+				return "", fmt.Errorf("generate certificates: %w", err)
+			}
+			cfg.SpotifyTLSCert = certPath
+			cfg.SpotifyTLSKey = keyPath
+		}
+	}
+
 	store, err := auth.NewStore(cfg.TokenCacheAppKey)
 	if err != nil {
 		return "", fmt.Errorf("create token store: %w", err)

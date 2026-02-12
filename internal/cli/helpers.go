@@ -2,63 +2,34 @@ package cli
 
 import (
 	"fmt"
-	"net/url"
-	"regexp"
-	"strings"
 
+	"genrify/internal/helpers"
 	"genrify/internal/spotify"
 )
 
+// Exported wrappers for backwards compatibility.
 var (
-	openTrackURLRe       = regexp.MustCompile(`(?i)^https?://open\.spotify\.com/track/([A-Za-z0-9]+)(?:\?.*)?$`)
-	openPlaylistURLRe    = regexp.MustCompile(`(?i)^https?://open\.spotify\.com/playlist/([A-Za-z0-9]+)(?:\?.*)?$`)
-	spotifyPlaylistURIRe = regexp.MustCompile(`(?i)^spotify:playlist:([A-Za-z0-9]+)$`)
+	JoinArtistNames      = helpers.JoinArtistNames
+	NormalizeTrackURI    = helpers.NormalizeTrackURI
+	NormalizePlaylistID  = helpers.NormalizePlaylistID
+	FilterPlaylistsByName = helpers.FilterPlaylistsByName
 )
 
+// Local helper functions.
 func joinArtistNames(artists []spotify.Artist) string {
-	n := make([]string, 0, len(artists))
-	for _, a := range artists {
-		if a.Name != "" {
-			n = append(n, a.Name)
-		}
-	}
-	return strings.Join(n, ", ")
+	return helpers.JoinArtistNames(artists)
 }
 
 func normalizeTrackURI(s string) (string, error) {
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return "", fmt.Errorf("empty track value")
-	}
-	if strings.HasPrefix(strings.ToLower(s), "spotify:track:") {
-		return s, nil
-	}
-	if m := openTrackURLRe.FindStringSubmatch(s); len(m) == 2 {
-		return "spotify:track:" + m[1], nil
-	}
-	if u, err := url.Parse(s); err == nil && u.Scheme != "" {
-		return "", fmt.Errorf("unsupported track url: %s", s)
-	}
-	// Treat as raw track id.
-	return "spotify:track:" + s, nil
+	return helpers.NormalizeTrackURI(s)
 }
 
 func normalizePlaylistID(s string) (string, error) {
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return "", fmt.Errorf("empty playlist id")
-	}
-	if m := spotifyPlaylistURIRe.FindStringSubmatch(s); len(m) == 2 {
-		return m[1], nil
-	}
-	if m := openPlaylistURLRe.FindStringSubmatch(s); len(m) == 2 {
-		return m[1], nil
-	}
-	if u, err := url.Parse(s); err == nil && u.Scheme != "" {
-		return "", fmt.Errorf("unsupported playlist url: %s", s)
-	}
-	// Treat as raw playlist id.
-	return s, nil
+	return helpers.NormalizePlaylistID(s)
+}
+
+func filterPlaylistsByName(playlists []spotify.SimplifiedPlaylist, filter string) []spotify.SimplifiedPlaylist {
+	return helpers.FilterPlaylistsByName(playlists, filter)
 }
 
 func truncate(s string, max int) string {
@@ -72,20 +43,6 @@ func truncate(s string, max int) string {
 		return s[:max]
 	}
 	return s[:max-3] + "..."
-}
-
-func filterPlaylistsByName(playlists []spotify.SimplifiedPlaylist, filter string) []spotify.SimplifiedPlaylist {
-	want := strings.ToLower(strings.TrimSpace(filter))
-	if want == "" {
-		return playlists
-	}
-	out := make([]spotify.SimplifiedPlaylist, 0, len(playlists))
-	for _, p := range playlists {
-		if strings.Contains(strings.ToLower(p.Name), want) {
-			out = append(out, p)
-		}
-	}
-	return out
 }
 
 func formatPlaylistRow(p spotify.SimplifiedPlaylist) string {

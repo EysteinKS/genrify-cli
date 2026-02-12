@@ -1,0 +1,169 @@
+name: Release GUI
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to release (e.g. v0.1.0)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-gui-linux:
+    name: Build GUI for Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Install GTK3 dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev pkg-config
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ inputs.tag }}" != "" ]; then
+            echo "VERSION=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build GUI for Linux amd64
+        run: |
+          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
+            -ldflags="-s -w -X genrify/internal/buildinfo.Version=${{ steps.version.outputs.VERSION }}" \
+            -o genrify-gui-linux-amd64 ./cmd/genrify
+          chmod +x genrify-gui-linux-amd64
+          tar czf genrify-gui_${{ steps.version.outputs.VERSION }}_linux_amd64.tar.gz genrify-gui-linux-amd64 README.md
+
+      - name: Upload GUI artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gui-linux
+          path: genrify-gui_*.tar.gz
+
+  build-gui-macos:
+    name: Build GUI for macOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Install GTK3 dependencies
+        run: |
+          brew install gtk+3 pkg-config
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ inputs.tag }}" != "" ]; then
+            echo "VERSION=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build GUI for macOS arm64
+        run: |
+          CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build \
+            -ldflags="-s -w -X genrify/internal/buildinfo.Version=${{ steps.version.outputs.VERSION }}" \
+            -o genrify-gui-darwin-arm64 ./cmd/genrify
+          chmod +x genrify-gui-darwin-arm64
+          tar czf genrify-gui_${{ steps.version.outputs.VERSION }}_darwin_arm64.tar.gz genrify-gui-darwin-arm64 README.md
+
+      - name: Build GUI for macOS amd64
+        run: |
+          CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build \
+            -ldflags="-s -w -X genrify/internal/buildinfo.Version=${{ steps.version.outputs.VERSION }}" \
+            -o genrify-gui-darwin-amd64 ./cmd/genrify
+          chmod +x genrify-gui-darwin-amd64
+          tar czf genrify-gui_${{ steps.version.outputs.VERSION }}_darwin_amd64.tar.gz genrify-gui-darwin-amd64 README.md
+
+      - name: Upload GUI artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gui-macos
+          path: genrify-gui_*.tar.gz
+
+  release:
+    name: Create GUI Release
+    runs-on: ubuntu-latest
+    needs: [build-gui-linux, build-gui-macos]
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ inputs.tag }}" != "" ]; then
+            echo "VERSION=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: GUI Build ${{ steps.version.outputs.VERSION }}
+          draft: true
+          files: |
+            gui-*/genrify-gui_*.tar.gz
+          body: |
+            # GUI Build for Genrify ${{ steps.version.outputs.VERSION }}
+
+            These are GUI-enabled builds of Genrify with GTK3 support.
+
+            ## Requirements
+
+            ### Linux
+            Install GTK3 before running:
+            ```bash
+            sudo apt-get install libgtk-3-0
+            ```
+
+            ### macOS
+            Install GTK3 before running:
+            ```bash
+            brew install gtk+3
+            ```
+
+            ## Usage
+            ```bash
+            ./genrify-gui-*  # Launches GUI
+            ./genrify-gui-* start  # Launches TUI
+            ```
+
+            **Note:** For CLI-only builds (no GTK3 required), use the main release.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
