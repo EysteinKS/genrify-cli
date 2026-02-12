@@ -3,6 +3,8 @@
 package gui
 
 import (
+	"fmt"
+
 	"github.com/gotk3/gotk3/gtk"
 )
 
@@ -100,7 +102,9 @@ func NewWindow(app *App) (*Window, error) {
 
 	// Connect settings button.
 	settingsBtn.Connect("clicked", func() {
-		app.showConfigDialog()
+		if err := app.showConfigDialog(); err != nil {
+			statusBar.SetError(fmt.Sprintf("Error: %v", err))
+		}
 	})
 
 	// Connect window close signal.

@@ -24,12 +24,12 @@ type MergeView struct {
 	listStore    *gtk.ListStore
 
 	// Step 2: Merge configuration.
-	nameEntry   *gtk.Entry
+	nameEntry    *gtk.Entry
 	descTextView *gtk.TextView
-	publicCheck *gtk.CheckButton
-	dedupeCheck *gtk.CheckButton
-	mergeBtn    *gtk.Button
-	progress    *gtk.ProgressBar
+	publicCheck  *gtk.CheckButton
+	dedupeCheck  *gtk.CheckButton
+	mergeBtn     *gtk.Button
+	progress     *gtk.ProgressBar
 
 	// Step 3: Results.
 	resultLabel *gtk.Label
@@ -385,7 +385,8 @@ func (v *MergeView) handleDelete() {
 		gtk.DIALOG_MODAL,
 		gtk.MESSAGE_QUESTION,
 		gtk.BUTTONS_YES_NO,
-		fmt.Sprintf("Delete %d source playlists? This cannot be undone.", len(v.matchedPlaylists)),
+		"Delete %d source playlists? This cannot be undone.",
+		len(v.matchedPlaylists),
 	)
 	dialog.SetTitle("Confirm Deletion")
 	response := dialog.Run()
@@ -442,8 +443,17 @@ func (v *MergeView) updateTreeView(playlists []spotify.SimplifiedPlaylist) {
 	// Add rows.
 	for _, p := range playlists {
 		iter := v.listStore.Append()
-		v.listStore.SetValue(iter, 0, p.ID)
-		v.listStore.SetValue(iter, 1, p.Name)
-		v.listStore.SetValue(iter, 2, p.Tracks.Total)
+		if err := v.listStore.SetValue(iter, 0, p.ID); err != nil {
+			v.app.window.StatusBar().SetError(fmt.Sprintf("Error: %v", err))
+			return
+		}
+		if err := v.listStore.SetValue(iter, 1, p.Name); err != nil {
+			v.app.window.StatusBar().SetError(fmt.Sprintf("Error: %v", err))
+			return
+		}
+		if err := v.listStore.SetValue(iter, 2, p.Tracks.Total); err != nil {
+			v.app.window.StatusBar().SetError(fmt.Sprintf("Error: %v", err))
+			return
+		}
 	}
 }

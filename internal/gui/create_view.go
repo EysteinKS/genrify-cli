@@ -12,13 +12,13 @@ import (
 
 // CreateView handles playlist creation.
 type CreateView struct {
-	app         *App
-	box         *gtk.Box
-	nameEntry   *gtk.Entry
+	app          *App
+	box          *gtk.Box
+	nameEntry    *gtk.Entry
 	descTextView *gtk.TextView
-	publicCheck *gtk.CheckButton
-	createBtn   *gtk.Button
-	resultLabel *gtk.Label
+	publicCheck  *gtk.CheckButton
+	createBtn    *gtk.Button
+	resultLabel  *gtk.Label
 }
 
 // NewCreateView creates a new create playlist view.
@@ -93,13 +93,13 @@ func NewCreateView(app *App) (*CreateView, error) {
 	box.PackStart(resultLabel, false, false, DefaultPadding)
 
 	v := &CreateView{
-		app:         app,
-		box:         box,
-		nameEntry:   nameEntry,
+		app:          app,
+		box:          box,
+		nameEntry:    nameEntry,
 		descTextView: descTextView,
-		publicCheck: publicCheck,
-		createBtn:   createBtn,
-		resultLabel: resultLabel,
+		publicCheck:  publicCheck,
+		createBtn:    createBtn,
+		resultLabel:  resultLabel,
 	}
 
 	// Connect signals.

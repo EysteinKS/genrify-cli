@@ -14,13 +14,13 @@ import (
 
 // PlaylistsView displays user's playlists.
 type PlaylistsView struct {
-	app       *App
-	box       *gtk.Box
+	app         *App
+	box         *gtk.Box
 	searchEntry *gtk.SearchEntry
-	limitSpin *gtk.SpinButton
-	refreshBtn *gtk.Button
-	treeView  *gtk.TreeView
-	listStore *gtk.ListStore
+	limitSpin   *gtk.SpinButton
+	refreshBtn  *gtk.Button
+	treeView    *gtk.TreeView
+	listStore   *gtk.ListStore
 }
 
 // NewPlaylistsView creates a new playlists view.
@@ -103,13 +103,13 @@ func NewPlaylistsView(app *App) (*PlaylistsView, error) {
 	box.PackStart(scrolled, true, true, 0)
 
 	v := &PlaylistsView{
-		app:       app,
-		box:       box,
+		app:         app,
+		box:         box,
 		searchEntry: searchEntry,
-		limitSpin: limitSpin,
-		refreshBtn: refreshBtn,
-		treeView:  treeView,
-		listStore: listStore,
+		limitSpin:   limitSpin,
+		refreshBtn:  refreshBtn,
+		treeView:    treeView,
+		listStore:   listStore,
 	}
 
 	// Connect signals.
@@ -200,10 +200,22 @@ func (v *PlaylistsView) updateTreeView(playlists []spotify.SimplifiedPlaylist) {
 	// Add rows.
 	for _, p := range filtered {
 		iter := v.listStore.Append()
-		v.listStore.SetValue(iter, 0, p.ID)
-		v.listStore.SetValue(iter, 1, p.Name)
-		v.listStore.SetValue(iter, 2, p.Tracks.Total)
-		v.listStore.SetValue(iter, 3, p.Owner.ID)
+		if err := v.listStore.SetValue(iter, 0, p.ID); err != nil {
+			v.app.window.StatusBar().SetError(fmt.Sprintf("Error: %v", err))
+			return
+		}
+		if err := v.listStore.SetValue(iter, 1, p.Name); err != nil {
+			v.app.window.StatusBar().SetError(fmt.Sprintf("Error: %v", err))
+			return
+		}
+		if err := v.listStore.SetValue(iter, 2, p.Tracks.Total); err != nil {
+			v.app.window.StatusBar().SetError(fmt.Sprintf("Error: %v", err))
+			return
+		}
+		if err := v.listStore.SetValue(iter, 3, p.Owner.ID); err != nil {
+			v.app.window.StatusBar().SetError(fmt.Sprintf("Error: %v", err))
+			return
+		}
 	}
 }
 

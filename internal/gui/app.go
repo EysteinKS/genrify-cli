@@ -19,12 +19,12 @@ type App struct {
 	client SpotifyClient
 
 	// Views.
-	loginView      *LoginView
-	playlistsView  *PlaylistsView
-	tracksView     *TracksView
-	createView     *CreateView
-	addTracksView  *AddTracksView
-	mergeView      *MergeView
+	loginView     *LoginView
+	playlistsView *PlaylistsView
+	tracksView    *TracksView
+	createView    *CreateView
+	addTracksView *AddTracksView
+	mergeView     *MergeView
 
 	// Dependencies injected from CLI layer.
 	opts Options

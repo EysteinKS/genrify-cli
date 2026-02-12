@@ -28,7 +28,11 @@ func newGUICmd(root *Root) *cobra.Command {
 	return cmd
 }
 
-// defaultCommand returns the GUI command as the default when no subcommand is specified.
+func addGUICmd(cmd *cobra.Command, root *Root) {
+	cmd.AddCommand(newGUICmd(root))
+}
+
+// defaultCommand returns the default command when no subcommand is specified.
 func defaultCommand(root *Root) *cobra.Command {
-	return newGUICmd(root)
+	return nil
 }

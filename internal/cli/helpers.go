@@ -9,9 +9,9 @@ import (
 
 // Exported wrappers for backwards compatibility.
 var (
-	JoinArtistNames      = helpers.JoinArtistNames
-	NormalizeTrackURI    = helpers.NormalizeTrackURI
-	NormalizePlaylistID  = helpers.NormalizePlaylistID
+	JoinArtistNames       = helpers.JoinArtistNames
+	NormalizeTrackURI     = helpers.NormalizeTrackURI
+	NormalizePlaylistID   = helpers.NormalizePlaylistID
 	FilterPlaylistsByName = helpers.FilterPlaylistsByName
 )
 

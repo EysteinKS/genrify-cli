@@ -14,13 +14,13 @@ import (
 
 // TracksView displays tracks from a playlist.
 type TracksView struct {
-	app        *App
-	box        *gtk.Box
-	idEntry    *gtk.Entry
-	limitSpin  *gtk.SpinButton
-	loadBtn    *gtk.Button
-	treeView   *gtk.TreeView
-	listStore  *gtk.ListStore
+	app       *App
+	box       *gtk.Box
+	idEntry   *gtk.Entry
+	limitSpin *gtk.SpinButton
+	loadBtn   *gtk.Button
+	treeView  *gtk.TreeView
+	listStore *gtk.ListStore
 }
 
 // NewTracksView creates a new tracks view.
@@ -176,8 +176,17 @@ func (v *TracksView) updateTreeView(tracks []spotify.FullTrack) {
 	// Add rows.
 	for _, t := range tracks {
 		iter := v.listStore.Append()
-		v.listStore.SetValue(iter, 0, t.URI)
-		v.listStore.SetValue(iter, 1, t.Name)
-		v.listStore.SetValue(iter, 2, helpers.JoinArtistNames(t.Artists))
+		if err := v.listStore.SetValue(iter, 0, t.URI); err != nil {
+			v.app.window.StatusBar().SetError(fmt.Sprintf("Error: %v", err))
+			return
+		}
+		if err := v.listStore.SetValue(iter, 1, t.Name); err != nil {
+			v.app.window.StatusBar().SetError(fmt.Sprintf("Error: %v", err))
+			return
+		}
+		if err := v.listStore.SetValue(iter, 2, helpers.JoinArtistNames(t.Artists)); err != nil {
+			v.app.window.StatusBar().SetError(fmt.Sprintf("Error: %v", err))
+			return
+		}
 	}
 }

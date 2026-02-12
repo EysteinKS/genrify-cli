@@ -13,12 +13,12 @@ import (
 
 // AddTracksView handles adding tracks to a playlist.
 type AddTracksView struct {
-	app         *App
-	box         *gtk.Box
-	idEntry     *gtk.Entry
+	app            *App
+	box            *gtk.Box
+	idEntry        *gtk.Entry
 	tracksTextView *gtk.TextView
-	addBtn      *gtk.Button
-	resultLabel *gtk.Label
+	addBtn         *gtk.Button
+	resultLabel    *gtk.Label
 }
 
 // NewAddTracksView creates a new add tracks view.
@@ -86,12 +86,12 @@ func NewAddTracksView(app *App) (*AddTracksView, error) {
 	box.PackStart(resultLabel, false, false, DefaultPadding)
 
 	v := &AddTracksView{
-		app:         app,
-		box:         box,
-		idEntry:     idEntry,
+		app:            app,
+		box:            box,
+		idEntry:        idEntry,
 		tracksTextView: tracksTextView,
-		addBtn:      addBtn,
-		resultLabel: resultLabel,
+		addBtn:         addBtn,
+		resultLabel:    resultLabel,
 	}
 
 	// Connect signals.

@@ -3,6 +3,7 @@
 package gui
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gotk3/gotk3/gtk"
@@ -15,13 +16,13 @@ import (
 type ConfigDialog struct {
 	dialog *gtk.Dialog
 
-	clientIDEntry     *gtk.Entry
-	redirectEntry     *gtk.Entry
-	scopesEntry       *gtk.Entry
-	certEntry         *gtk.Entry
-	keyEntry          *gtk.Entry
-	autoGenCheck      *gtk.CheckButton
-	certKeyBox        *gtk.Box
+	clientIDEntry *gtk.Entry
+	redirectEntry *gtk.Entry
+	scopesEntry   *gtk.Entry
+	certEntry     *gtk.Entry
+	keyEntry      *gtk.Entry
+	autoGenCheck  *gtk.CheckButton
+	certKeyBox    *gtk.Box
 
 	onSave func(config.Config) error
 }
@@ -37,8 +38,12 @@ func NewConfigDialog(cfg config.Config, onSave func(config.Config) error) (*Conf
 	dialog.SetModal(true)
 
 	// Add buttons.
-	dialog.AddButton("Cancel", gtk.RESPONSE_CANCEL)
-	dialog.AddButton("Save", gtk.RESPONSE_OK)
+	if _, err := dialog.AddButton("Cancel", gtk.RESPONSE_CANCEL); err != nil {
+		return nil, err
+	}
+	if _, err := dialog.AddButton("Save", gtk.RESPONSE_OK); err != nil {
+		return nil, err
+	}
 
 	// Create content area.
 	contentArea, err := dialog.GetContentArea()
@@ -121,15 +126,6 @@ func NewConfigDialog(cfg config.Config, onSave func(config.Config) error) (*Conf
 		keyEntry.SetSensitive(!active)
 	})
 
-	// Handle save.
-	dialog.Connect("response", func(_ *gtk.Dialog, response gtk.ResponseType) {
-		if response == gtk.RESPONSE_OK {
-			if err := d.save(); err != nil {
-				showErrorDialog(dialog, "Error", err.Error())
-			}
-		}
-	})
-
 	dialog.ShowAll()
 
 	return d, nil
@@ -137,7 +133,18 @@ func NewConfigDialog(cfg config.Config, onSave func(config.Config) error) (*Conf
 
 // Run runs the dialog and returns the response.
 func (d *ConfigDialog) Run() gtk.ResponseType {
-	return d.dialog.Run()
+	for {
+		response := d.dialog.Run()
+		if response != gtk.RESPONSE_OK {
+			return response
+		}
+		if err := d.save(); err != nil {
+			showErrorDialog(d.dialog, "Error", err.Error())
+			d.dialog.ShowAll()
+			continue
+		}
+		return response
+	}
 }
 
 // Destroy destroys the dialog.
@@ -165,7 +172,7 @@ func (d *ConfigDialog) save() error {
 	}
 	clientID = strings.TrimSpace(clientID)
 	if clientID == "" {
-		return showErrorDialog(d.dialog, "Validation Error", "Client ID is required")
+		return fmt.Errorf("client ID is required")
 	}
 
 	redirect, err := d.redirectEntry.GetText()
@@ -215,7 +222,7 @@ func (d *ConfigDialog) save() error {
 			cfg.SpotifyTLSKey = strings.TrimSpace(keyPath)
 
 			if cfg.SpotifyTLSCert == "" || cfg.SpotifyTLSKey == "" {
-				return showErrorDialog(d.dialog, "Validation Error", "HTTPS redirect requires TLS certificate and key files")
+				return fmt.Errorf("https redirect requires TLS certificate and key files")
 			}
 		}
 	}
@@ -264,10 +271,9 @@ func parseScopes(s string) []string {
 	return out
 }
 
-func showErrorDialog(parent *gtk.Dialog, title, message string) error {
-	dialog := gtk.MessageDialogNew(parent, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, message)
+func showErrorDialog(parent *gtk.Dialog, title, message string) {
+	dialog := gtk.MessageDialogNew(parent, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, "%s", message)
 	dialog.SetTitle(title)
 	dialog.Run()
 	dialog.Destroy()
-	return nil
 }

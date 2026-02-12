@@ -81,12 +81,10 @@ func NewRoot() (*cobra.Command, *Root) {
 	startCmd := newStartCmd(rootState)
 	cmd.AddCommand(startCmd)
 	cmd.AddCommand(newPlaylistsCmd(rootState))
+	addGUICmd(cmd, rootState)
 
 	// Get the default command (GUI if available, otherwise nil).
 	defaultCmd := defaultCommand(rootState)
-	if defaultCmd != nil {
-		cmd.AddCommand(defaultCmd)
-	}
 
 	// Default behavior when no subcommand is provided.
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
