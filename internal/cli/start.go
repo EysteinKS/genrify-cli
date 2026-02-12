@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -14,12 +15,44 @@ func newStartCmd(root *Root) *cobra.Command {
 		Use:   "start",
 		Short: "Interactive menu for Spotify operations",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := newSpotifyClient(root.Cfg)
+			if root.newSpotifyClient == nil {
+				return fmt.Errorf("missing spotify client factory")
+			}
+			c, err := root.newSpotifyClient(root.Cfg)
 			if err != nil {
 				return WrapLoginError(err)
 			}
-			prompter := NewPrompter()
-			return runInteractiveLoop(cmd.Context(), c, prompter)
+
+			// Proactively ensure we're logged in so the menu works immediately.
+			if _, err := c.GetMe(cmd.Context()); err != nil {
+				werr := WrapLoginError(err)
+				if errors.Is(werr, ErrNotLoggedIn) {
+					if root.doLogin == nil {
+						return fmt.Errorf("missing login handler")
+					}
+					ctx, cancel := context.WithTimeout(cmd.Context(), LoginTimeout)
+					defer cancel()
+
+					if _, err := root.doLogin(ctx, root.Cfg); err != nil {
+						return err
+					}
+					// Retry after login.
+					if _, err := c.GetMe(cmd.Context()); err != nil {
+						return WrapLoginError(err)
+					}
+				} else {
+					return werr
+				}
+			}
+
+			prompter := root.Prompter
+			if prompter == nil {
+				prompter = NewPrompter()
+			}
+			if root.runInteractiveLoop == nil {
+				return fmt.Errorf("missing interactive loop")
+			}
+			return root.runInteractiveLoop(cmd.Context(), c, prompter)
 		},
 	}
 	return cmd

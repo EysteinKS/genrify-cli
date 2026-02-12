@@ -19,6 +19,16 @@ Optional (only if you run from source):
 
 Download the latest release asset for your OS from GitHub Releases (not the "Source code" zip), unzip it, and run `genrify`.
 
+macOS note: if you get "Apple could not verify \"genrify\" is free of malware", this is Gatekeeper blocking an unsigned binary.
+If you trust the download, you can either:
+
+- Finder → right-click `genrify` → **Open** → **Open**
+- Or remove the quarantine attribute:
+
+```sh
+xattr -d com.apple.quarantine /path/to/genrify
+```
+
 On first run, `genrify` will ask for the required Spotify settings and save them to a config file in your user config directory.
 
 ### Run from source

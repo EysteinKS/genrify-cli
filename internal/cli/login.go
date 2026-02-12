@@ -7,7 +7,32 @@ import (
 	"github.com/spf13/cobra"
 
 	"genrify/internal/auth"
+	"genrify/internal/config"
 )
+
+func doLogin(ctx context.Context, cfg config.Config) (string, error) {
+	store, err := auth.NewStore(cfg.TokenCacheAppKey)
+	if err != nil {
+		return "", fmt.Errorf("create token store: %w", err)
+	}
+
+	res, err := auth.LoginPKCE(ctx, auth.OAuthConfig{
+		ClientID:    cfg.SpotifyClientID,
+		RedirectURI: cfg.SpotifyRedirect,
+		Scopes:      cfg.SpotifyScopes,
+		UserAgent:   cfg.UserAgent,
+		TLSCertFile: cfg.SpotifyTLSCert,
+		TLSKeyFile:  cfg.SpotifyTLSKey,
+	})
+	if err != nil {
+		return "", fmt.Errorf("oauth login: %w", err)
+	}
+	if err := store.Save(res.Token); err != nil {
+		return "", fmt.Errorf("save token: %w", err)
+	}
+
+	return store.Path(), nil
+}
 
 func newLoginCmd(root *Root) *cobra.Command {
 	cmd := &cobra.Command{
@@ -17,28 +42,16 @@ func newLoginCmd(root *Root) *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), LoginTimeout)
 			defer cancel()
 
-			store, err := auth.NewStore(root.Cfg.TokenCacheAppKey)
-			if err != nil {
-				return fmt.Errorf("create token store: %w", err)
+			if root.doLogin == nil {
+				return fmt.Errorf("missing login handler")
 			}
-
-			res, err := auth.LoginPKCE(ctx, auth.OAuthConfig{
-				ClientID:    root.Cfg.SpotifyClientID,
-				RedirectURI: root.Cfg.SpotifyRedirect,
-				Scopes:      root.Cfg.SpotifyScopes,
-				UserAgent:   root.Cfg.UserAgent,
-				TLSCertFile: root.Cfg.SpotifyTLSCert,
-				TLSKeyFile:  root.Cfg.SpotifyTLSKey,
-			})
+			path, err := root.doLogin(ctx, root.Cfg)
 			if err != nil {
-				return fmt.Errorf("oauth login: %w", err)
-			}
-			if err := store.Save(res.Token); err != nil {
-				return fmt.Errorf("save token: %w", err)
+				return err
 			}
 
 			cmd.Println("Logged in successfully.")
-			cmd.Println(fmt.Sprintf("Token cache: %s", store.Path()))
+			cmd.Println(fmt.Sprintf("Token cache: %s", path))
 			return nil
 		},
 	}

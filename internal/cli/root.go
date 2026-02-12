@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -16,6 +17,10 @@ type Root struct {
 
 	loadConfig func() (config.Config, error)
 	saveConfig func(config.Config) (string, error)
+
+	newSpotifyClient   func(config.Config) (SpotifyClient, error)
+	doLogin            func(context.Context, config.Config) (string, error)
+	runInteractiveLoop func(context.Context, SpotifyClient, Prompter) error
 }
 
 func NewRoot() (*cobra.Command, *Root) {
@@ -23,6 +28,11 @@ func NewRoot() (*cobra.Command, *Root) {
 		Prompter:   NewPrompter(),
 		loadConfig: config.Load,
 		saveConfig: config.Save,
+		newSpotifyClient: func(cfg config.Config) (SpotifyClient, error) {
+			return newSpotifyClient(cfg)
+		},
+		doLogin:            doLogin,
+		runInteractiveLoop: runInteractiveLoop,
 	}
 
 	cmd := &cobra.Command{
@@ -58,8 +68,20 @@ func NewRoot() (*cobra.Command, *Root) {
 
 	cmd.AddCommand(newVersionCmd())
 	cmd.AddCommand(newLoginCmd(rootState))
-	cmd.AddCommand(newStartCmd(rootState))
+	startCmd := newStartCmd(rootState)
+	cmd.AddCommand(startCmd)
 	cmd.AddCommand(newPlaylistsCmd(rootState))
+
+	// Default to `start` when no subcommand is provided.
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		startCmd.SetContext(cmd.Context())
+		startCmd.SetOut(cmd.OutOrStdout())
+		startCmd.SetErr(cmd.ErrOrStderr())
+		if startCmd.RunE == nil {
+			return fmt.Errorf("start command missing RunE")
+		}
+		return startCmd.RunE(startCmd, args)
+	}
 
 	return cmd, rootState
 }

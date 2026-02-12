@@ -2,6 +2,7 @@ package cli
 
 import (
 	"errors"
+	"io"
 	"strings"
 	"testing"
 
@@ -83,6 +84,40 @@ func TestRootPersistentPreRunE_SkipsVersion(t *testing.T) {
 
 	if err := cmd.PersistentPreRunE(version, nil); err != nil {
 		t.Fatalf("expected nil error, got %v", err)
+	}
+}
+
+func TestRoot_DefaultsToStartWhenNoArgs(t *testing.T) {
+	cmd, root := NewRoot()
+
+	cfg := config.Default()
+	cfg.SpotifyClientID = "client-id"
+	root.loadConfig = func() (config.Config, error) { return cfg, nil }
+	root.saveConfig = func(c config.Config) (string, error) {
+		t.Fatalf("did not expect config to be saved")
+		return "", nil
+	}
+
+	var startCalled bool
+	for _, sub := range cmd.Commands() {
+		if sub.Name() == "start" {
+			sub.RunE = func(cmd *cobra.Command, args []string) error {
+				startCalled = true
+				return nil
+			}
+			break
+		}
+	}
+
+	cmd.SetOut(io.Discard)
+	cmd.SetErr(io.Discard)
+	cmd.SetArgs([]string{})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute failed: %v", err)
+	}
+	if !startCalled {
+		t.Fatalf("expected start to be called")
 	}
 }
 
