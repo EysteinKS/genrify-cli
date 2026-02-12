@@ -40,6 +40,7 @@ type Options struct {
 
 // Run initializes GTK and runs the GUI application.
 func Run(cfg config.Config, opts Options) error {
+	// Note: runtime.LockOSThread() is called in main.go init() for macOS compatibility.
 	gtk.Init(nil)
 
 	app := &App{

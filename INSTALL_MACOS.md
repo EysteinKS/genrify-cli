@@ -96,12 +96,48 @@ If you prefer to build from source:
    sudo mv genrify /usr/local/bin/
    ```
 
-## Step 5: Run Genrify
+## Step 5: Set Up Environment (Required)
 
-Simply run:
+GTK3 on macOS needs some environment variables to find its resources. Update the pixbuf loaders cache:
 
 ```sh
-genrify
+gdk-pixbuf-query-loaders --update-cache
+```
+
+## Step 6: Run Genrify
+
+### Option A: Using the Launch Script (Recommended)
+
+The included `run-gui.sh` script sets up all required environment variables:
+
+```sh
+./run-gui.sh
+```
+
+### Option B: Set Environment Variables Manually
+
+```sh
+export GDK_PIXBUF_MODULEDIR="$(brew --prefix)/lib/gdk-pixbuf-2.0/2.10.0/loaders"
+export GDK_PIXBUF_MODULE_FILE="$(brew --prefix)/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache"
+export GTK_THEME=Adwaita
+
+./genrify
+```
+
+### Option C: Add to Your Shell Profile
+
+Add to `~/.zshrc` or `~/.bash_profile`:
+
+```sh
+export GDK_PIXBUF_MODULEDIR="$(brew --prefix)/lib/gdk-pixbuf-2.0/2.10.0/loaders"
+export GDK_PIXBUF_MODULE_FILE="$(brew --prefix)/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache"
+export GTK_THEME=Adwaita
+```
+
+Then reload your shell and run:
+```sh
+source ~/.zshrc  # or ~/.bash_profile
+./genrify
 ```
 
 This will launch the GUI by default (since GTK3 is installed).
@@ -119,6 +155,23 @@ On first run, Genrify will show a configuration dialog where you can enter:
 If you prefer not to install GTK3, you can download the CLI-only version from the main [Releases](https://github.com/EysteinKS/genrify-cli/releases) page. This version works without GTK3 and provides the same functionality through a terminal interface.
 
 ## Troubleshooting
+
+### "Could not load a pixbuf" or missing icons
+
+Update the pixbuf loaders cache:
+```sh
+gdk-pixbuf-query-loaders --update-cache
+```
+
+Then use the `run-gui.sh` script or set the environment variables as shown above.
+
+### "NSWindow should only be instantiated on the main thread"
+
+This error has been fixed by ensuring the main thread is locked for GUI operations. Make sure you're running the latest build:
+```sh
+make build
+./run-gui.sh
+```
 
 ### "dyld: Library not loaded" error
 
