@@ -21,7 +21,6 @@ type Config struct {
 	TokenCacheAppKey string `json:"-"`
 }
 
-
 func Default() Config {
 	return Config{
 		SpotifyRedirect: "http://localhost:8888/callback",

@@ -50,11 +50,11 @@ func TestNewRoot(t *testing.T) {
 func TestRootPersistentPreRunE(t *testing.T) {
 	cmd, root := NewRoot()
 	root.Prompter = &fakePrompter{values: map[string]string{
-		"Spotify Client ID":                       "client-id",
-		"Spotify Redirect URI":                    "http://localhost:8888/callback",
-		"Spotify scopes (space/comma separated)":   "playlist-read-private",
-		"TLS cert file (for https redirect)":       "",
-		"TLS key file (for https redirect)":        "",
+		"Spotify Client ID":                      "client-id",
+		"Spotify Redirect URI":                   "http://localhost:8888/callback",
+		"Spotify scopes (space/comma separated)": "playlist-read-private",
+		"TLS cert file (for https redirect)":     "",
+		"TLS key file (for https redirect)":      "",
 	}}
 	root.loadConfig = func() (config.Config, error) { return config.Default(), nil }
 	var saved config.Config
@@ -97,7 +97,9 @@ func (p *fakePrompter) PromptString(label, defaultValue string) (string, error) 
 	return defaultValue, nil
 }
 
-func (p *fakePrompter) PromptInt(label string, defaultValue int) (int, error) { return defaultValue, nil }
+func (p *fakePrompter) PromptInt(label string, defaultValue int) (int, error) {
+	return defaultValue, nil
+}
 func (p *fakePrompter) PromptSelect(label string, items []string) (int, string, error) {
 	if len(items) == 0 {
 		return 0, "", nil

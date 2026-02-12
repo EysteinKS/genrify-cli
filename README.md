@@ -106,9 +106,12 @@ go run ./cmd/genrify playlists add <playlist-id> spotify:track:<id> https://open
 ## Dev
 
 ```sh
-go test ./...
+make test
 
 # Race + coverage (writes ./coverage.out)
-go test ./... -race -coverprofile=coverage.out -covermode=atomic
+make test
 go tool cover -func=coverage.out
+
+# Just lint
+make lint
 ```

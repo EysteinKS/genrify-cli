@@ -1,8 +1,8 @@
 package config
 
 import (
-	"path/filepath"
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 )

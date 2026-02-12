@@ -20,7 +20,7 @@ type Root struct {
 
 func NewRoot() (*cobra.Command, *Root) {
 	rootState := &Root{
-		Prompter:  NewPrompter(),
+		Prompter:   NewPrompter(),
 		loadConfig: config.Load,
 		saveConfig: config.Save,
 	}
