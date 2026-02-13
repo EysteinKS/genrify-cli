@@ -25,13 +25,15 @@ const queryClient = new QueryClient({
   },
 })
 
+const basename = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '') || '/'
+
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ConfigProvider>
         <AuthProvider>
           <StatusBarProvider>
-            <BrowserRouter>
+            <BrowserRouter basename={basename === '/' ? undefined : basename}>
               <Routes>
                 {/* Callback sits outside Layout (no sidebar during OAuth) */}
                 <Route path="/callback" element={<CallbackPage />} />
