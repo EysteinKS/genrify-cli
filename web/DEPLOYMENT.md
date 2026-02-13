@@ -21,14 +21,9 @@ The repo includes a GitHub Actions workflow that automatically deploys to GitHub
    - Add redirect URI: `https://yourusername.github.io/genrify/callback`
    - Save
 
-3. **Configure Base Path (if needed):**
+3. **Base path:**
 
-   If your GitHub Pages is at `https://yourusername.github.io/genrify/` (project pages):
-   - Edit `.github/workflows/deploy-web.yml`
-   - Uncomment and set `BASE_URL: /genrify/` in the build step
-
-   If your GitHub Pages is at `https://yourusername.github.io/` (user/org pages):
-   - No changes needed (base is `/` by default)
+   The GitHub Actions workflow now sets `BASE_URL` automatically based on your Pages configuration (project pages get `/your-repo/`, user/org pages get `/`). You only need to set `BASE_URL` manually if you are building locally for a custom path.
 
 4. **Push to main:**
    ```bash
