@@ -169,7 +169,7 @@ jobs:
 
       - name: Run tests
         working-directory: web
-        run: npm test
+        run: npm test -- --run
 
   web-build:
     name: Web Build
