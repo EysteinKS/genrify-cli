@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "build:gh-pages": "BASE_URL=/genrify/ npm run build",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest run",
     "test:ui": "vitest --ui",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\""
