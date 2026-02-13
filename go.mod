@@ -3,7 +3,6 @@ module genrify
 go 1.22
 
 require (
-	github.com/gotk3/gotk3 v0.6.5-0.20251124190141-e7a9e823ca35
 	github.com/manifoldco/promptui v0.9.0
 	github.com/spf13/cobra v1.8.1
 )

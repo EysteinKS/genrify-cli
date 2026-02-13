@@ -3,12 +3,11 @@
 [![CI](https://github.com/EysteinKS/genrify-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/EysteinKS/genrify-cli/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/EysteinKS/genrify-cli/branch/main/graph/badge.svg)](https://codecov.io/gh/EysteinKS/genrify-cli)
 
-CLI, GUI, and Web app for interacting with Spotify (login + playlists).
+CLI and Web app for interacting with Spotify (login + playlists).
 
 ## Features
 
 - 🌐 **Web App** - Browser-based SPA with OAuth PKCE (no backend!) → [Try it now](https://eysteinks.github.io/genrify/)
-- 🖥️ **GTK3 GUI** - Graphical interface with all playlist features
 - 💻 **Interactive TUI** - Terminal-based menu interface
 - ⌨️ **CLI commands** - Direct command-line operations
 - 🔐 **OAuth PKCE** - Secure authentication with auto-generated certificates
@@ -53,66 +52,6 @@ npm run dev
 
 See [web/README.md](./web/README.md) for details.
 
-### GUI Version (with GTK3)
-
-The GUI version provides a graphical interface for all features.
-
-#### macOS
-
-1. Install GTK3 using Homebrew:
-   ```sh
-   brew install gtk+3 pkg-config
-   ```
-
-2. Download the GUI build for macOS from the [GUI Releases](https://github.com/EysteinKS/genrify-cli/releases) (look for `genrify-gui_*_darwin_*.tar.gz`)
-
-3. Extract and run:
-   ```sh
-   tar xzf genrify-gui_*_darwin_*.tar.gz
-   ./genrify-gui-darwin-*
-   ```
-
-#### Linux
-
-1. Install GTK3:
-   ```sh
-   # Ubuntu/Debian
-   sudo apt-get install libgtk-3-0
-
-   # Fedora/RHEL
-   sudo dnf install gtk3
-
-   # Arch
-   sudo pacman -S gtk3
-   ```
-
-2. Download the GUI build for Linux from the [GUI Releases](https://github.com/EysteinKS/genrify-cli/releases) (look for `genrify-gui_*_linux_*.tar.gz`)
-
-3. Extract and run:
-   ```sh
-   tar xzf genrify-gui_*_linux_*.tar.gz
-   ./genrify-gui-linux-*
-   ```
-
-#### Windows
-
-1. Install GTK3 Runtime:
-   - **Option A (MSYS2 - Recommended):**
-     1. Download and install [MSYS2](https://www.msys2.org/)
-     2. Open MSYS2 MINGW64 terminal
-     3. Run: `pacman -S mingw-w64-x86_64-gtk3`
-     4. Add `C:\msys64\mingw64\bin` to your PATH
-
-   - **Option B (GTK Runtime):**
-     Download and install the GTK3 Runtime from [gtk.org](https://www.gtk.org/docs/installations/windows)
-
-2. Download the GUI build for Windows from the [GUI Releases](https://github.com/EysteinKS/genrify-cli/releases) (look for `genrify-gui_*_windows_*.zip`)
-
-3. Extract and run:
-   ```cmd
-   genrify.exe
-   ```
-
 ### CLI-Only Version (no GTK3 required)
 
 Download the latest release asset for your OS from GitHub Releases (not the "Source code" zip), unzip it, and run `genrify`.
@@ -131,27 +70,14 @@ On first run, `genrify` will ask for the required Spotify settings and save them
 
 ### Build from Source
 
-#### CLI-only (no GTK3 required)
 ```sh
-make build-cli
-./genrify version
-```
-
-Or directly:
-```sh
-CGO_ENABLED=0 go build -tags nogui -o genrify ./cmd/genrify
-```
-
-#### GUI version (requires GTK3 installed)
-```sh
-# First install GTK3 (see instructions above)
 make build
 ./genrify version
 ```
 
 Or directly:
 ```sh
-CGO_ENABLED=1 go build -o genrify ./cmd/genrify
+CGO_ENABLED=0 go build -tags nogui -o genrify ./cmd/genrify
 ```
 
 ## Config
@@ -186,24 +112,6 @@ export SPOTIFY_TLS_KEY_FILE="$PWD/.certs/localhost-key.pem"
 ```
 
 ## Usage
-
-### GUI Mode (if GTK3 is installed)
-
-Simply run `genrify` without arguments to launch the GUI:
-
-```sh
-genrify
-# or explicitly
-genrify gui
-```
-
-The GUI provides:
-- 🔐 Login/logout interface
-- 📋 Browse and search playlists
-- 🎵 View playlist tracks
-- ➕ Create new playlists
-- 🎶 Add tracks to playlists
-- 🔀 Merge multiple playlists with deduplication
 
 ### Login
 
@@ -257,10 +165,6 @@ go run ./cmd/genrify playlists add <playlist-id> spotify:track:<id> https://open
 ### Build
 
 ```sh
-# Build CLI-only version (no GTK3 required)
-make build-cli
-
-# Build GUI version (requires GTK3)
 make build
 ```
 
@@ -285,6 +189,5 @@ make lint
 
 ### Build Tags
 
-- Default build includes GUI (requires GTK3 and `CGO_ENABLED=1`)
-- Build with `-tags nogui` for CLI-only version (no GTK3 required, allows `CGO_ENABLED=0`)
-- GoReleaser uses `nogui` tag for cross-platform releases
+- All builds use the `nogui` tag (CLI-only) with `CGO_ENABLED=0`
+- GoReleaser and CI use the same settings for cross-platform binaries

@@ -120,11 +120,11 @@ No backend required - all OAuth is handled in the browser using PKCE.
 
 ## Comparison with Go Version
 
-| Feature | Go CLI/GUI | Web SPA |
-|---------|-----------|---------|
+| Feature | Go CLI | Web SPA |
+|---------|--------|---------|
 | Auth | Local HTTP server | OAuth redirect (PKCE) |
 | Storage | Filesystem | localStorage |
-| UI | GTK3 | React + CSS Modules |
+| UI | Terminal (Cobra + promptui) | React + CSS Modules |
 | API Client | `http.Client` | `fetch()` |
 | State | In-memory | TanStack Query |
 

@@ -83,7 +83,7 @@ All 8 phases have been implemented successfully:
 4. **Type Safety** - Strict TypeScript throughout
 5. **CSS Modules** - Scoped styling, no global pollution
 6. **Server State Management** - TanStack Query with caching + invalidation
-7. **Responsive Design** - Dark theme matching Go GUI constants
+7. **Responsive Design** - Dark theme using shared design tokens
 8. **Error Handling** - Auto-retry for 401, exponential backoff for 429
 
 ## 🔄 Go → TypeScript Mappings
@@ -99,7 +99,6 @@ All 8 phases have been implemented successfully:
 | `internal/playlist/service.go` | `lib/playlist-service.ts` | Direct port |
 | `internal/helpers/playlist.go` | `lib/helpers.ts` | Same regex patterns |
 | `internal/spotify/token_manager.go` | `contexts/AuthContext.tsx` | Mutex → React state |
-| `internal/gui/*.go` (6 views) | `pages/*.tsx` (7 pages) | +CallbackPage |
 
 ## ✅ Verification Checklist
 

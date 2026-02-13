@@ -45,16 +45,6 @@ func NewRoot() (*cobra.Command, *Root) {
 				return nil
 			}
 
-			// Skip CLI config prompting for GUI command (GUI has its own config dialog).
-			if cmd.Name() == "gui" {
-				cfg, err := rootState.loadConfig()
-				if err != nil {
-					return err
-				}
-				rootState.Cfg = cfg
-				return nil
-			}
-
 			cfg, err := rootState.loadConfig()
 			if err != nil {
 				return err
@@ -81,25 +71,9 @@ func NewRoot() (*cobra.Command, *Root) {
 	startCmd := newStartCmd(rootState)
 	cmd.AddCommand(startCmd)
 	cmd.AddCommand(newPlaylistsCmd(rootState))
-	addGUICmd(cmd, rootState)
-
-	// Get the default command (GUI if available, otherwise nil).
-	defaultCmd := defaultCommand(rootState)
 
 	// Default behavior when no subcommand is provided.
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		// Use GUI as default if available, otherwise fall back to start.
-		if defaultCmd != nil {
-			defaultCmd.SetContext(cmd.Context())
-			defaultCmd.SetOut(cmd.OutOrStdout())
-			defaultCmd.SetErr(cmd.ErrOrStderr())
-			if defaultCmd.RunE == nil {
-				return fmt.Errorf("default command missing RunE")
-			}
-			return defaultCmd.RunE(defaultCmd, args)
-		}
-
-		// Fall back to start command.
 		startCmd.SetContext(cmd.Context())
 		startCmd.SetOut(cmd.OutOrStdout())
 		startCmd.SetErr(cmd.ErrOrStderr())

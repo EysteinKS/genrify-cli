@@ -110,7 +110,7 @@ Created comprehensive deployment guides:
 - Added web app as first option (easiest!)
 - Link to live demo (when deployed)
 - Quick setup instructions
-- All three versions highlighted: Web, GUI, CLI
+- Web and CLI versions highlighted
 
 #### Web README (`web/README.md`)
 - Added deployment section
@@ -150,7 +150,6 @@ README.md                             # Added web app section
 | lint | Go | ~30s | Push/PR |
 | test | Go | ~45s | Push/PR |
 | build-cli | Go | ~30s | Push/PR |
-| build-gui | Go | ~45s | Push/PR |
 | web-lint | Node.js | ~30s | Push/PR |
 | web-test | Node.js | ~45s | Push/PR |
 | web-build | Node.js | ~45s | Push/PR |
