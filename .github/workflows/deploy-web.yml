@@ -27,6 +27,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -42,9 +45,8 @@ jobs:
         working-directory: web
         run: npm run build
         env:
-          # Set base path for GitHub Pages (e.g., /genrify/)
-          # Uncomment and adjust if your repo is not at root of user/org pages
-          # BASE_URL: /genrify/
+          # Project Pages are served from /<repo>/
+          BASE_URL: /${{ github.event.repository.name }}/
 
       - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v3

@@ -6,7 +6,10 @@ import path from 'path'
 export default defineConfig({
   // Base path for deployment (e.g., '/genrify/' for github.io/genrify)
   // Override with BASE_URL env var or keep as '/' for root deployment
-  base: process.env.BASE_URL || '/',
+  base: (() => {
+    const rawBase = process.env.BASE_URL || '/'
+    return rawBase.endsWith('/') ? rawBase : `${rawBase}/`
+  })(),
 
   plugins: [react()],
 
