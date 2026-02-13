@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import type { AppConfig } from '@/types/config'
 import { DEFAULT_CONFIG } from '@/types/config'
 import { storage } from '@/lib/storage'
+import { getAppCallbackRedirectUri } from '@/lib/redirect-uri'
 
 interface ConfigContextValue {
   config: AppConfig
@@ -16,7 +17,13 @@ const ConfigContext = createContext<ConfigContextValue | null>(null)
 export function ConfigProvider({ children }: { children: ReactNode }) {
   const [config, setConfigState] = useState<AppConfig>(() => {
     const stored = storage.getConfig()
-    return stored || DEFAULT_CONFIG
+    if (stored) return stored
+
+    const redirectUri = getAppCallbackRedirectUri()
+    return {
+      ...DEFAULT_CONFIG,
+      redirectUri: redirectUri || DEFAULT_CONFIG.redirectUri,
+    }
   })
 
   const isConfigured = config.clientId.trim() !== ''
@@ -30,7 +37,12 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const stored = storage.getConfig()
     if (stored) {
-      setConfigState(stored)
+      if (!stored.redirectUri) {
+        const redirectUri = getAppCallbackRedirectUri()
+        setConfigState({ ...stored, redirectUri: redirectUri || stored.redirectUri })
+      } else {
+        setConfigState(stored)
+      }
     }
   }, [])
 

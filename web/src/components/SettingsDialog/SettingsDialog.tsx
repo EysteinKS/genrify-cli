@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useConfig } from '@/contexts/ConfigContext'
 import type { AppConfig } from '@/types/config'
+import { getAppCallbackRedirectUri } from '@/lib/redirect-uri'
 import styles from './SettingsDialog.module.css'
 
 interface SettingsDialogProps {
@@ -12,6 +13,7 @@ interface SettingsDialogProps {
 export function SettingsDialog({ onClose }: SettingsDialogProps) {
   const { config, setConfig } = useConfig()
   const [formData, setFormData] = useState<AppConfig>(config)
+  const defaultRedirectUri = getAppCallbackRedirectUri() || 'http://localhost:5173/callback'
 
   useEffect(() => {
     setFormData(config)
@@ -73,7 +75,7 @@ export function SettingsDialog({ onClose }: SettingsDialogProps) {
               className={styles.input}
               value={formData.redirectUri}
               onChange={(e) => setFormData({ ...formData, redirectUri: e.target.value })}
-              placeholder="http://localhost:5173/callback"
+              placeholder={defaultRedirectUri}
               required
             />
             <p className={styles.hint}>

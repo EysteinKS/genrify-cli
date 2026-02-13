@@ -4,6 +4,7 @@ import type { Token } from '@/types/auth'
 import type { AppConfig } from '@/types/config'
 import { generatePKCE } from './pkce'
 import { storage } from './storage'
+import { getEffectiveRedirectUri } from './redirect-uri'
 
 const AUTH_URL = 'https://accounts.spotify.com/authorize'
 const TOKEN_URL = 'https://accounts.spotify.com/api/token'
@@ -30,10 +31,11 @@ export function buildAuthorizeURL(
   state: string,
   codeChallenge: string
 ): string {
+  const redirectUri = getEffectiveRedirectUri(config.redirectUri)
   const params = new URLSearchParams({
     client_id: config.clientId,
     response_type: 'code',
-    redirect_uri: config.redirectUri,
+    redirect_uri: redirectUri,
     state,
     code_challenge_method: 'S256',
     code_challenge: codeChallenge,
@@ -55,11 +57,12 @@ export async function exchangeCode(
   code: string,
   codeVerifier: string
 ): Promise<Token> {
+  const redirectUri = getEffectiveRedirectUri(config.redirectUri)
   const form = new URLSearchParams({
     client_id: config.clientId,
     grant_type: 'authorization_code',
     code,
-    redirect_uri: config.redirectUri,
+    redirect_uri: redirectUri,
     code_verifier: codeVerifier,
   })
 

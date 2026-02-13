@@ -8,7 +8,8 @@ export interface AppConfig {
 
 export const DEFAULT_CONFIG: AppConfig = {
   clientId: '',
-  redirectUri: 'http://localhost:5173/callback',
+  // Default is resolved at runtime from the current app origin + BASE_URL + /callback.
+  redirectUri: '',
   scopes: [
     'playlist-read-private',
     'playlist-read-collaborative',
