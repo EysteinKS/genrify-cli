@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Genrify</title>
+    <script>
+      // GitHub Pages SPA redirect hack
+      // Redirect 404 to index.html with path preserved
+      sessionStorage.setItem('redirect', location.pathname + location.search + location.hash);
+      location.replace(location.origin + location.pathname.split('/').slice(0, -1).join('/') + '/');
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

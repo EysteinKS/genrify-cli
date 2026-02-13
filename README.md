@@ -3,10 +3,11 @@
 [![CI](https://github.com/EysteinKS/genrify-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/EysteinKS/genrify-cli/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/EysteinKS/genrify-cli/branch/main/graph/badge.svg)](https://codecov.io/gh/EysteinKS/genrify-cli)
 
-CLI and GUI for interacting with Spotify (login + playlists).
+CLI, GUI, and Web app for interacting with Spotify (login + playlists).
 
 ## Features
 
+- 🌐 **Web App** - Browser-based SPA with OAuth PKCE (no backend!) → [Try it now](https://eysteinks.github.io/genrify/)
 - 🖥️ **GTK3 GUI** - Graphical interface with all playlist features
 - 💻 **Interactive TUI** - Terminal-based menu interface
 - ⌨️ **CLI commands** - Direct command-line operations
@@ -22,6 +23,35 @@ Optional (only if you run from source):
 - Go 1.22+
 
 ## Install
+
+### Web App (Browser - No Installation Required!)
+
+**Easiest option** - Just open your browser:
+
+👉 **[https://eysteinks.github.io/genrify/](https://eysteinks.github.io/genrify/)**
+
+Features:
+- ✅ No installation required
+- ✅ Works on all platforms (Windows, Mac, Linux, mobile)
+- ✅ OAuth PKCE authentication (no backend needed)
+- ✅ All core features: browse, create, merge playlists
+- ✅ Pure client-side (React + TypeScript)
+
+**First-time setup:**
+1. Click the settings icon (⚙️)
+2. Enter your Spotify Client ID
+3. Add `https://eysteinks.github.io/genrify/callback` to your Spotify app's redirect URIs
+4. Save and login!
+
+**Want to run it locally?**
+```bash
+cd web
+npm install
+npm run dev
+# Open http://localhost:5173
+```
+
+See [web/README.md](./web/README.md) for details.
 
 ### GUI Version (with GTK3)
 

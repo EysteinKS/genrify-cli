@@ -75,6 +75,19 @@ npm test
 
 Runs Vitest unit tests.
 
+## Deployment
+
+### GitHub Pages (Automatic)
+
+This repo includes GitHub Actions workflow for automatic deployment:
+
+1. Enable GitHub Pages in Settings → Pages → Source: "GitHub Actions"
+2. Push to `main` branch
+3. Workflow deploys automatically to `https://yourusername.github.io/genrify/`
+4. Update Spotify redirect URI to match
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions and other platforms (Netlify, Vercel, etc.).
+
 ## Architecture
 
 ```
