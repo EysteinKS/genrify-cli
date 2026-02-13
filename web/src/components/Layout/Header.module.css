@@ -15,6 +15,60 @@
   margin: 0;
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.actionIndicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  max-width: 300px;
+}
+
+.actionIndicator:hover {
+  background-color: var(--color-surface-hover);
+  transform: translateY(-1px);
+}
+
+.actionIndicator.success {
+  border-left: 3px solid var(--color-success);
+}
+
+.actionIndicator.error {
+  border-left: 3px solid var(--color-error);
+}
+
+.actionIcon {
+  font-size: var(--font-size-sm);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.actionIndicator.success .actionIcon {
+  color: var(--color-success);
+}
+
+.actionIndicator.error .actionIcon {
+  color: var(--color-error);
+}
+
+.actionText {
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .settingsButton {
   display: flex;
   align-items: center;
@@ -27,6 +81,7 @@
   color: var(--color-text);
   cursor: pointer;
   transition: background-color var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .settingsButton:hover {

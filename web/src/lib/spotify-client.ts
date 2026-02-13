@@ -12,6 +12,30 @@ import type {
 
 const BASE_URL = 'https://api.spotify.com/v1'
 
+let writeAccessDepth = 0
+
+/**
+ * Run a function with explicit permission to perform non-read (non-GET) Spotify API calls.
+ * This is used to ensure all write actions go through a user confirmation flow.
+ */
+export async function withWriteAccess<T>(fn: () => Promise<T>): Promise<T> {
+  writeAccessDepth++
+  try {
+    return await fn()
+  } finally {
+    writeAccessDepth--
+  }
+}
+
+function assertWriteAllowed(method: string): void {
+  const m = method.toUpperCase()
+  if (m === 'GET') return
+  if (writeAccessDepth > 0) return
+  throw new Error(
+    `Blocked Spotify API write (${m}). This action must be confirmed in the UI before sending data.`
+  )
+}
+
 /**
  * Spotify API client with automatic token refresh and retry logic.
  * Port of Client from client.go
@@ -242,6 +266,7 @@ export class SpotifyClient {
    * Port of doJSONWithRetry from client.go:245-323
    */
   private async doJSON<T>(method: string, path: string, body?: unknown): Promise<T> {
+    assertWriteAllowed(method)
     const url = `${BASE_URL}${path}`
     let bodyBytes: string | undefined
     if (body !== undefined) {

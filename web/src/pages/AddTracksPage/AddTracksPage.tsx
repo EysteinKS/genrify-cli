@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useAddTracks } from '@/hooks/mutations/useAddTracks'
 import { useStatusBar } from '@/contexts/StatusBarContext'
+import { isCancelledError } from '@/lib/cancelled'
 import { normalizePlaylistID, normalizeTrackURI } from '@/lib/helpers'
 import styles from './AddTracksPage.module.css'
 
@@ -13,7 +14,7 @@ export function AddTracksPage() {
   const [success, setSuccess] = useState<string | null>(null)
 
   const addTracks = useAddTracks()
-  const { setStatus, setError } = useStatusBar()
+  const { setError } = useStatusBar()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,15 +60,12 @@ export function AddTracksPage() {
     }
 
     try {
-      setStatus(`Adding ${uris.length} tracks...`)
       await addTracks.mutateAsync({ playlistId: normalizedPlaylistId, uris })
-      setStatus(`Successfully added ${uris.length} tracks`)
       setSuccess(`Added ${uris.length} track${uris.length !== 1 ? 's' : ''} to playlist`)
       setWarnings(warns)
       setTracksInput('')
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error'
-      setError(`Failed to add tracks: ${message}`)
+      if (isCancelledError(err)) return
     }
   }
 

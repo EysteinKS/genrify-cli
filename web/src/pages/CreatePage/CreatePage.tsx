@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useCreatePlaylist } from '@/hooks/mutations/useCreatePlaylist'
-import { useStatusBar } from '@/contexts/StatusBarContext'
+import { isCancelledError } from '@/lib/cancelled'
 import styles from './CreatePage.module.css'
 
 export function CreatePage() {
@@ -14,7 +14,6 @@ export function CreatePage() {
   )
 
   const createPlaylist = useCreatePlaylist()
-  const { setStatus, setError } = useStatusBar()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,9 +25,7 @@ export function CreatePage() {
     }
 
     try {
-      setStatus('Creating playlist...')
       const result = await createPlaylist.mutateAsync({ name, description, isPublic })
-      setStatus(`Created playlist: ${result.name}`)
       setFeedback({
         type: 'success',
         message: `Playlist "${result.name}" created successfully! ID: ${result.id}`,
@@ -38,8 +35,8 @@ export function CreatePage() {
       setDescription('')
       setIsPublic(false)
     } catch (err) {
+      if (isCancelledError(err)) return
       const message = err instanceof Error ? err.message : 'Unknown error'
-      setError(`Failed to create playlist: ${message}`)
       setFeedback({ type: 'error', message })
     }
   }

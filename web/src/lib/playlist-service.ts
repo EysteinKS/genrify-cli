@@ -27,6 +27,44 @@ export class PlaylistService {
   constructor(private client: SpotifyClient) {}
 
   /**
+   * Prepare the track list for a merge (read-only).
+   * This collects all track URIs from the source playlists and optionally deduplicates them.
+   */
+  async prepareMergeTracks(
+    sourceIds: string[],
+    deduplicateTracks: boolean,
+    onProgress?: (message: string) => void
+  ): Promise<{ uris: string[]; duplicatesRemoved: number }> {
+    if (sourceIds.length === 0) {
+      throw new Error('at least one source playlist is required')
+    }
+
+    onProgress?.('Collecting tracks from source playlists...')
+    let uris: string[] = []
+    for (const id of sourceIds) {
+      const trimmedId = id.trim()
+      if (!trimmedId) continue
+
+      const tracks = await this.client.listPlaylistTracks(trimmedId, 0)
+      for (const t of tracks) {
+        if (t.uri) {
+          uris.push(t.uri)
+        }
+      }
+    }
+
+    let duplicatesRemoved = 0
+    if (deduplicateTracks) {
+      onProgress?.('Deduplicating tracks...')
+      const result = deduplicate(uris)
+      uris = result.kept
+      duplicatesRemoved = result.duplicates
+    }
+
+    return { uris, duplicatesRemoved }
+  }
+
+  /**
    * Find playlists matching a regex pattern.
    * Port of FindPlaylistsByPattern from service.go:38-63
    */
@@ -71,28 +109,26 @@ export class PlaylistService {
       throw new Error('at least one source playlist is required')
     }
 
-    // Collect tracks first so we can fail early without creating anything
-    onProgress?.('Collecting tracks from source playlists...')
-    let uris: string[] = []
-    for (const id of sourceIds) {
-      const trimmedId = id.trim()
-      if (!trimmedId) continue
+    const prepared = await this.prepareMergeTracks(sourceIds, opts.deduplicate, onProgress)
+    return this.mergePreparedTracks(targetName, opts, prepared, onProgress)
+  }
 
-      const tracks = await this.client.listPlaylistTracks(trimmedId, 0)
-      for (const t of tracks) {
-        if (t.uri) {
-          uris.push(t.uri)
-        }
-      }
+  /**
+   * Execute a merge using a precomputed URI list (write + verify).
+   * This avoids recomputing track payloads between confirmation and execution.
+   */
+  async mergePreparedTracks(
+    targetName: string,
+    opts: MergeOptions,
+    prepared: { uris: string[]; duplicatesRemoved: number },
+    onProgress?: (message: string) => void
+  ): Promise<MergeResult> {
+    targetName = targetName.trim()
+    if (!targetName) {
+      throw new Error('target name is required')
     }
 
-    let duplicatesRemoved = 0
-    if (opts.deduplicate) {
-      onProgress?.('Deduplicating tracks...')
-      const result = deduplicate(uris)
-      uris = result.kept
-      duplicatesRemoved = result.duplicates
-    }
+    const { uris, duplicatesRemoved } = prepared
 
     onProgress?.('Creating target playlist...')
     const pl = await this.client.createPlaylist(targetName, opts.description, opts.public)

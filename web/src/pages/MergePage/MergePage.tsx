@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { useFindByPattern } from '@/hooks/mutations/useFindByPattern'
 import { useMergePlaylists } from '@/hooks/mutations/useMergePlaylists'
+import { useDeletePlaylists } from '@/hooks/mutations/useDeletePlaylists'
 import { useStatusBar } from '@/contexts/StatusBarContext'
 import { DataTable, type Column } from '@/components/DataTable/DataTable'
 import type { SimplifiedPlaylist } from '@/types/spotify'
 import type { MergeResult } from '@/lib/playlist-service'
-import { PlaylistService } from '@/lib/playlist-service'
-import { useSpotifyClient } from '@/hooks/useSpotifyClient'
+import { isCancelledError } from '@/lib/cancelled'
 import styles from './MergePage.module.css'
 
 type Step = 'find' | 'merge' | 'results'
@@ -25,7 +25,7 @@ export function MergePage() {
 
   const findByPattern = useFindByPattern()
   const mergePlaylists = useMergePlaylists()
-  const client = useSpotifyClient()
+  const deletePlaylists = useDeletePlaylists()
   const { setStatus, setError } = useStatusBar()
 
   const handleFind = async (e: React.FormEvent) => {
@@ -49,13 +49,11 @@ export function MergePage() {
         sourceIds,
         targetName,
         options: { deduplicate, public: isPublic, description: targetDescription },
-        onProgress: (msg) => setStatus(msg),
       })
       setMergeResult(result)
-      setStatus('Merge completed successfully')
       setStep('results')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to merge playlists')
+      if (isCancelledError(err)) return
     }
   }
 
@@ -64,18 +62,11 @@ export function MergePage() {
       setError('Cannot delete sources - merge was not verified')
       return
     }
-
-    if (!confirm(`Delete ${matchedPlaylists.length} source playlist${matchedPlaylists.length !== 1 ? 's' : ''}?`)) {
-      return
-    }
-
     try {
-      const service = new PlaylistService(client)
-      setStatus('Deleting source playlists...')
-      await service.deletePlaylists(matchedPlaylists.map((p) => p.id))
-      setStatus('Source playlists deleted')
+      await deletePlaylists.mutateAsync(matchedPlaylists.map((p) => ({ id: p.id, name: p.name })))
+      handleReset()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete playlists')
+      if (isCancelledError(err)) return
     }
   }
 

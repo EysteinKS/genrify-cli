@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { ConfigProvider } from './contexts/ConfigContext'
 import { AuthProvider } from './contexts/AuthContext'
 import { StatusBarProvider } from './contexts/StatusBarContext'
+import { ConfirmProvider } from './contexts/ConfirmContext'
 import { Layout } from './components/Layout/Layout'
 import { LoginPage } from './pages/LoginPage/LoginPage'
 import { CallbackPage } from './pages/CallbackPage/CallbackPage'
@@ -33,23 +34,25 @@ export function App() {
       <ConfigProvider>
         <AuthProvider>
           <StatusBarProvider>
-            <BrowserRouter basename={basename === '/' ? undefined : basename}>
-              <Routes>
-                {/* Callback sits outside Layout (no sidebar during OAuth) */}
-                <Route path="/callback" element={<CallbackPage />} />
+            <ConfirmProvider>
+              <BrowserRouter basename={basename === '/' ? undefined : basename}>
+                <Routes>
+                  {/* Callback sits outside Layout (no sidebar during OAuth) */}
+                  <Route path="/callback" element={<CallbackPage />} />
 
-                {/* All other routes use Layout */}
-                <Route element={<Layout />}>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/playlists" element={<PlaylistsPage />} />
-                  <Route path="/tracks" element={<TracksPage />} />
-                  <Route path="/create" element={<CreatePage />} />
-                  <Route path="/add-tracks" element={<AddTracksPage />} />
-                  <Route path="/merge" element={<MergePage />} />
-                  <Route path="/" element={<Navigate to="/login" replace />} />
-                </Route>
-              </Routes>
-            </BrowserRouter>
+                  {/* All other routes use Layout */}
+                  <Route element={<Layout />}>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/playlists" element={<PlaylistsPage />} />
+                    <Route path="/tracks" element={<TracksPage />} />
+                    <Route path="/create" element={<CreatePage />} />
+                    <Route path="/add-tracks" element={<AddTracksPage />} />
+                    <Route path="/merge" element={<MergePage />} />
+                    <Route path="/" element={<Navigate to="/login" replace />} />
+                  </Route>
+                </Routes>
+              </BrowserRouter>
+            </ConfirmProvider>
           </StatusBarProvider>
         </AuthProvider>
       </ConfigProvider>
