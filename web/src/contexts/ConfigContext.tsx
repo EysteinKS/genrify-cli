@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import type { AppConfig } from '@/types/config'
 import { DEFAULT_CONFIG } from '@/types/config'
 import { storage } from '@/lib/storage'
-import { getAppCallbackRedirectUri } from '@/lib/redirect-uri'
+import { getAppCallbackRedirectUri, isLoopbackUrl } from '@/lib/redirect-uri'
 
 interface ConfigContextValue {
   config: AppConfig
@@ -17,13 +17,16 @@ const ConfigContext = createContext<ConfigContextValue | null>(null)
 export function ConfigProvider({ children }: { children: ReactNode }) {
   const [config, setConfigState] = useState<AppConfig>(() => {
     const stored = storage.getConfig()
-    if (stored) return stored
+    const appRedirectUri = getAppCallbackRedirectUri()
 
-    const redirectUri = getAppCallbackRedirectUri()
-    return {
-      ...DEFAULT_CONFIG,
-      redirectUri: redirectUri || DEFAULT_CONFIG.redirectUri,
+    if (stored) {
+      if (!stored.redirectUri || isLoopbackUrl(stored.redirectUri)) {
+        return { ...stored, redirectUri: appRedirectUri || stored.redirectUri }
+      }
+      return stored
     }
+
+    return { ...DEFAULT_CONFIG, redirectUri: appRedirectUri || DEFAULT_CONFIG.redirectUri }
   })
 
   const isConfigured = config.clientId.trim() !== ''
@@ -37,12 +40,12 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const stored = storage.getConfig()
     if (stored) {
-      if (!stored.redirectUri) {
-        const redirectUri = getAppCallbackRedirectUri()
-        setConfigState({ ...stored, redirectUri: redirectUri || stored.redirectUri })
-      } else {
-        setConfigState(stored)
+      const appRedirectUri = getAppCallbackRedirectUri()
+      if (!stored.redirectUri || isLoopbackUrl(stored.redirectUri)) {
+        setConfigState({ ...stored, redirectUri: appRedirectUri || stored.redirectUri })
+        return
       }
+      setConfigState(stored)
     }
   }, [])
 

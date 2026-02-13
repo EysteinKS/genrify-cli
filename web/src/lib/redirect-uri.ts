@@ -2,6 +2,15 @@
 
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1'])
 
+export function isLoopbackUrl(value: string): boolean {
+  try {
+    const url = new URL(value)
+    return LOOPBACK_HOSTS.has(url.hostname)
+  } catch {
+    return false
+  }
+}
+
 function normalizeBaseUrl(baseUrl: string | undefined): string {
   const raw = (baseUrl || '/').trim()
   if (raw === '' || raw === '/') return ''
@@ -15,6 +24,7 @@ export function getAppCallbackRedirectUri(): string {
 
   const base = normalizeBaseUrl(import.meta.env.BASE_URL)
   const path = `${base}/callback`
+
   return new URL(path, window.location.origin).toString()
 }
 
@@ -46,14 +56,16 @@ export function getEffectiveRedirectUri(configuredRedirectUri: string): string {
   const appUrl = new URL(appRedirectUri)
 
   const configuredIsLoopback = LOOPBACK_HOSTS.has(configuredUrl.hostname)
-  const appIsLoopback = LOOPBACK_HOSTS.has(appUrl.hostname)
+  if (configuredIsLoopback) {
+    // Common case: user copied a loopback redirect URI from the CLI config.
+    // In the browser we always want Spotify to redirect back to *this* app.
+    return appUrl.toString()
+  }
 
-  // Only auto-correct loopback redirect URIs. Non-loopback redirects are assumed intentional.
-  if (configuredIsLoopback && appIsLoopback) {
-    // If port or path differ, redirect would likely land on the wrong service.
-    if (configuredUrl.port !== appUrl.port || configuredUrl.pathname !== appUrl.pathname) {
-      return appUrl.toString()
-    }
+  // If a non-loopback redirect URI was configured but doesn't match the current app,
+  // redirecting there won't hit this SPA's /callback handler. Prefer the app callback.
+  if (configuredUrl.origin !== appUrl.origin || configuredUrl.pathname !== appUrl.pathname) {
+    return appUrl.toString()
   }
 
   return configuredUrl.toString()
