@@ -24,7 +24,7 @@ jobs:
           cache: true
 
       - name: golangci-lint (with nogui tag)
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v9
         with:
           version: v1.63.4
           args: --timeout=5m --build-tags=nogui
@@ -45,7 +45,7 @@ jobs:
           cache: true
 
       - name: golangci-lint (required)
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v9
         with:
           version: v1.63.4
           args: --timeout=5m --build-tags=nogui
