@@ -214,6 +214,7 @@ export class SpotifyClient {
     const out: T[] = []
     let offset = 0
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const page = await fetch(limit, offset)
       out.push(...page.items)
@@ -250,6 +251,7 @@ export class SpotifyClient {
     let refreshed = false
     let rateRetries = 0
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const headers: Record<string, string> = {
         Accept: 'application/json',
