@@ -1,0 +1,166 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.title {
+  margin: 0 0 var(--spacing-lg) 0;
+  font-size: var(--font-size-xl);
+}
+
+.section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.section h2 {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: var(--font-size-lg);
+}
+
+.form {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.field label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.checkboxes {
+  display: flex;
+  gap: var(--spacing-lg);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.checkbox input[type='checkbox'] {
+  width: auto;
+  cursor: pointer;
+}
+
+.checkbox label {
+  cursor: pointer;
+  user-select: none;
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+}
+
+.button,
+.secondaryButton,
+.deleteButton {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+}
+
+.button {
+  background-color: var(--color-primary);
+  color: #000;
+}
+
+.button:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.deleteButton {
+  background-color: var(--color-error);
+  color: #fff;
+}
+
+.deleteButton:hover {
+  background-color: #c91e2e;
+}
+
+.results {
+  display: flex;
+  justify-content: center;
+}
+
+.resultCard {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  width: 100%;
+}
+
+.resultCard h2 {
+  margin: 0 0 var(--spacing-lg) 0;
+  font-size: var(--font-size-xl);
+  text-align: center;
+}
+
+.resultList {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--spacing-md) var(--spacing-lg);
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+.resultList dt {
+  font-weight: 600;
+}
+
+.resultList dd {
+  margin: 0;
+  font-family: monospace;
+}
+
+.resultList dd.success {
+  color: var(--color-success);
+}
+
+.resultList dd.error {
+  color: var(--color-error);
+}

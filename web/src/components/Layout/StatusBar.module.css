@@ -1,0 +1,35 @@
+.statusBar {
+  grid-area: statusbar;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-lg);
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  min-height: var(--statusbar-height);
+  font-size: var(--font-size-sm);
+}
+
+.statusBar.error {
+  background-color: rgba(226, 33, 52, 0.1);
+  color: var(--color-error);
+}
+
+.message {
+  flex: 1;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,77 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.title {
+  margin: 0 0 var(--spacing-lg) 0;
+  font-size: var(--font-size-xl);
+}
+
+.controls {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 200px;
+}
+
+.field label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.field input {
+  width: 100%;
+}
+
+.loadButton {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.loadButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.error {
+  padding: var(--spacing-md);
+  background-color: rgba(226, 33, 52, 0.1);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-sm);
+  color: var(--color-error);
+  margin-bottom: var(--spacing-lg);
+}
+
+.loading {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: var(--spacing-xl);
+}
+
+.count {
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.hint {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: var(--spacing-xl);
+  font-style: italic;
+}

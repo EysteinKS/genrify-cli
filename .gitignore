@@ -36,3 +36,7 @@ tmp/
 
 genrify
 genrify-gui
+
+# Web frontend
+web/node_modules/
+web/dist/
